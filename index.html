@@ -1,13 +1,68 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Image Upload</title>
+  <title>Create Folder and Files</title>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 </head>
 <body>
-    <h2>Image Upload</h2>
-    <form action="upload.php" method="post" enctype="multipart/form-data">
-        <input type="file" name="image" accept="image/*" />
-        <input type="submit" value="Upload" name="submit" />
-    </form>
+  <button onclick="createFolderAndFile()">Create Folder and File</button>
+
+  <script>
+    function createFolderAndFile() {
+      // Generate a random log number
+      var logNumber = Math.floor(Math.random() * 100) + 1;
+
+      // Folder and file names
+      var folderName = "logtest";
+      var fileName = "log" + logNumber + ".txt";
+
+      // GitHub repository details
+      var repoOwner = "guillermoRBcode";
+      var repoName = "imageuploadertest";
+      var token = "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"; // Replace with your GitHub access token
+
+      // Create folder using GitHub API
+      axios({
+        method: 'PUT',
+        url: `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${folderName}`,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        data: JSON.stringify({
+          path: folderName,
+          message: 'Create folder',
+          content: ''
+        })
+      })
+      .then(response => {
+        // Folder created, now create the text file inside the folder
+        var folderSha = response.data.content.sha;
+
+        axios({
+          method: 'PUT',
+          url: `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${folderName}/${fileName}`,
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          data: JSON.stringify({
+            path: `${folderName}/${fileName}`,
+            message: 'Create text file',
+            content: btoa('Hello, world!') // Base64-encoded content
+          })
+        })
+        .then(() => {
+          alert(`Folder '${folderName}' and file '${fileName}' created successfully!`);
+        })
+        .catch(error => {
+          console.error('Error creating text file:', error);
+        });
+      })
+      .catch(error => {
+        console.error('Error creating folder:', error);
+      });
+    }
+  </script>
 </body>
 </html>
