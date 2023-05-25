@@ -1,1 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>File Uploader</title>
+</head>
+<body>
+  <h1>File Uploader</h1>
+  <input type="file" id="fileInput">
+  <button onclick="uploadFile()">Upload</button>
 
+  <script>
+    function uploadFile() {
+      const fileInput = document.getElementById('fileInput');
+      const file = fileInput.files[0];
+
+      if (file) {
+        const apiUrl = 'https://api.github.com/repos/guillermoRBcode/file-uploader/contents/folder/' + file.name;
+        const reader = new FileReader();
+
+        reader.onload = function (event) {
+          const content = event.target.result.split(',')[1];
+          const requestData = {
+            message: 'Upload file',
+            content: content
+          };
+
+          fetch(apiUrl, {
+            method: 'PUT',
+            headers: {
+              'Authorization': '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',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestData)
+          })
+          .then(response => response.json())
+          .then(data => {
+            console.log('File uploaded successfully!', data);
+            alert('File uploaded successfully!');
+          })
+          .catch(error => {
+            console.error('Error uploading file:', error);
+            alert('Error uploading file: ' + error.message);
+          });
+        };
+
+        reader.readAsDataURL(file);
+      }
+    }
+  </script>
+</body>
+</html>
